@@ -13,11 +13,16 @@ import java.util.Optional;
 @Service
 public class ShelfService {
 
-    @Autowired
+
     private ShelfRepository shelfRepository;
+    private BookRepository bookRepository;
 
     @Autowired
-    private BookRepository bookRepository;
+    public ShelfService(ShelfRepository shelfRepository, BookRepository bookRepository) {
+        this.shelfRepository = shelfRepository;
+        this.bookRepository = bookRepository;
+    }
+
 
     public List<Shelf> getShelfs() {
         return shelfRepository.findAll();

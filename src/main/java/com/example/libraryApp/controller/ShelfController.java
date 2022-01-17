@@ -12,9 +12,14 @@ import java.util.List;
 @RequestMapping("/shelf")
 public class ShelfController {
 
-    @Autowired
+
+
     private ShelfService shelfService;
 
+    @Autowired
+    public ShelfController(ShelfService shelfService) {
+        this.shelfService = shelfService;
+    }
 
     @GetMapping("/shelfs")
     public List<Shelf> getShelfs()

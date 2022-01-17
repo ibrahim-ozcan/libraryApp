@@ -14,12 +14,14 @@ import java.util.Optional;
 @Service
 public class BookService {
 
-    @Autowired
     private BookRepository bookRepository;
-
-    @Autowired
     private ShelfRepository shelfRepository;
 
+    @Autowired
+    public BookService(BookRepository bookRepository, ShelfRepository shelfRepository) {
+        this.bookRepository = bookRepository;
+        this.shelfRepository = shelfRepository;
+    }
 
     public List<Book> getBooks() {
         return bookRepository.findAll();

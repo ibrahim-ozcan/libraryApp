@@ -3,6 +3,7 @@ package com.example.libraryApp.controller;
 import com.example.libraryApp.model.Book;
 import com.example.libraryApp.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,15 @@ import java.util.List;
 public class BookController {
 
 
-    @Autowired
+
     private BookService bookService;
 
+    @Autowired
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/books")
     public List<Book> getBooks()
     {
@@ -25,6 +32,8 @@ public class BookController {
 
     }
 
+
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/book/{id}")
     public Book getBook(@PathVariable long id)
     {

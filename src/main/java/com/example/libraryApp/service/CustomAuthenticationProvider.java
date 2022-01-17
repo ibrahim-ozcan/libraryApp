@@ -28,7 +28,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+        System.out.println(password.equals(userDetails.getPassword()));
+
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+//        if(!password.equals(userDetails.getPassword()))  {
+            System.out.println(this.passwordEncoder);
+            System.out.println(password);
+            System.out.println(userDetails.getPassword());
             throw new BadCredentialsException("Şifre hatalı");
         }
         return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
