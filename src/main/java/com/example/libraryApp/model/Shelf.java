@@ -3,6 +3,7 @@ package com.example.libraryApp.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 
@@ -25,7 +26,7 @@ public class Shelf {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shelf_id")
-    private long shelf_id;
+    private long id;
 
     private String name;
 
@@ -35,20 +36,26 @@ public class Shelf {
 
     @OneToMany(mappedBy = "shelf", cascade = {CascadeType.MERGE,CascadeType.DETACH,
             CascadeType.PERSIST,CascadeType.REFRESH}, fetch = FetchType.EAGER)
-
+    @JsonIgnoreProperties({"shelf", "user"})
     private List<Book> books = new ArrayList<>();
 
+    @ManyToOne
+    @JsonIgnoreProperties({"shelves", "books"})
+    private CustomUser user;
 
     public void removeBook(Book book)
     {
         this.books.remove(book);
     }
-
+                                   
     @PreRemove
     public void removeBooks()
     {
         this.books.forEach(book-> book.removeShelf(this));
         this.books=null;
+
+        if(user!=null)
+            this.user.getShelves().remove(this);
     }
 
     public void addBook(Book book) {
@@ -62,6 +69,6 @@ public class Shelf {
 
     @Override
     public String toString() {
-        return "Shelf{" + "id=" + shelf_id + ", name='" + name + '\'' + ", books=" + books + '}';
+        return "Shelf{" + "id=" + id + ", name='" + name + '\'' + ", books=" + books + '}';
     }
 }

@@ -2,10 +2,14 @@ package com.example.libraryApp.service;
 
 
 import com.example.libraryApp.model.Book;
+import com.example.libraryApp.model.CustomUser;
 import com.example.libraryApp.model.Shelf;
 import com.example.libraryApp.repository.BookRepository;
+import com.example.libraryApp.repository.CustomUserRepository;
 import com.example.libraryApp.repository.ShelfRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,19 +20,31 @@ public class BookService {
 
     private BookRepository bookRepository;
     private ShelfRepository shelfRepository;
+    private CustomUserRepository customUserRepository;
 
     @Autowired
-    public BookService(BookRepository bookRepository, ShelfRepository shelfRepository) {
+    public BookService(BookRepository bookRepository, ShelfRepository shelfRepository, CustomUserRepository customUserRepository) {
         this.bookRepository = bookRepository;
         this.shelfRepository = shelfRepository;
+        this.customUserRepository = customUserRepository;
     }
 
-    public List<Book> getBooks() {
+    //admin
+    public List<Book>  getAllBooks()
+    {
         return bookRepository.findAll();
     }
 
+    public List<Book> getBooks() {
+        CustomUser customUser = customUserRepository.findByUsername(getUsername()).get();
+        return bookRepository.findAllByUser(customUser).get();
+
+    }
+
     public Book getBook(Long id) {
-        Optional<Book> opt = bookRepository.findById(id);
+
+        CustomUser customUser = customUserRepository.findByUsername(getUsername()).get();
+        Optional<Book> opt = bookRepository.findByUserAndId(customUser,id);
         if(opt.isPresent())
             return opt.get();
         return null;
@@ -36,16 +52,27 @@ public class BookService {
 
     public Book addBook(Book book) {
 
-        return bookRepository.save(book);
+        CustomUser customUser = customUserRepository.findByUsername(getUsername()).get();
+        customUser.getBooks().add(book);
+        book.setUser(customUser);
+
+        return customUserRepository.save(customUser).getBooks().get(customUserRepository.save(customUser).getBooks().size()-1);
     }
 
     public Book updateBook(Book book) {
-           return bookRepository.save(book) ;
+        CustomUser customUser = customUserRepository.findByUsername(getUsername()).get();
+
+        if((book.getUser()!=null && book.getUser().getUsername().equals(getUsername())) ||
+                customUser.getBooks().stream().anyMatch(asd -> asd.getId()==book.getId())  )
+            return bookRepository.save(book) ;
+
+        return  null;
     }
 
     public boolean deleteBook(long id) {
-        Book book = getBook(id);
-        if(book != null)
+        CustomUser customUser = customUserRepository.findByUsername(getUsername()).get();
+        Optional<Book> book = bookRepository.findByUserAndId(customUser,id);
+        if(book.isPresent())
         {
             bookRepository.deleteById(id);
             return true;
@@ -55,8 +82,9 @@ public class BookService {
 
 
     public Book putBookToShelf(long book_id, long shelf_id) {
-        Optional<Book> book = bookRepository.findById(book_id);
-        Optional<Shelf> shelf = shelfRepository.findById(shelf_id);
+        CustomUser customUser = customUserRepository.findByUsername(getUsername()).get();
+        Optional<Book> book = bookRepository.findByUserAndId(customUser,book_id);
+        Optional<Shelf> shelf = shelfRepository.findByUserAndId(customUser,shelf_id);
         if(book.isPresent()  && shelf.isPresent())
         {
             book.get().setShelf(shelf.get());
@@ -64,5 +92,17 @@ public class BookService {
             return book.get();
         }
         return null;
+    }
+    public String getUsername()
+    {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails)principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        return username;
     }
 }

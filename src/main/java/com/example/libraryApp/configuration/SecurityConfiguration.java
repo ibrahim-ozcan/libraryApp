@@ -32,17 +32,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http              .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/h2-console").permitAll()
                 .anyRequest().authenticated()
+
                 .and()
                 .formLogin();
     }
-
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
+    
 }

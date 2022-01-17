@@ -1,9 +1,11 @@
 package com.example.libraryApp.controller;
 
+import com.example.libraryApp.model.Book;
 import com.example.libraryApp.model.Shelf;
 import com.example.libraryApp.repository.ShelfRepository;
 import com.example.libraryApp.service.ShelfService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,10 +23,17 @@ public class ShelfController {
         this.shelfService = shelfService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/allshelves")
+    public List<Shelf> getAllShelves()
+    {
+        return shelfService.getAllShelves();
+    }
+
     @GetMapping("/shelfs")
     public List<Shelf> getShelfs()
     {
-        return shelfService.getShelfs();
+        return shelfService.getShelves();
     }
     @GetMapping("/shelf/{id}")
     public Shelf getShelf(@PathVariable long id)

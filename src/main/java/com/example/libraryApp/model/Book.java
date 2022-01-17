@@ -18,7 +18,7 @@ public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "book_id")
     private Long id;
 
     @Column(nullable = false)
@@ -40,20 +40,22 @@ public class Book {
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.DETACH,
             CascadeType.PERSIST,CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinColumn(name = "shelf_id", referencedColumnName = "shelf_id")
-    
-//    @JoinTable(
-//            name = "bookshelf",
-//            joinColumns = @JoinColumn(name = "bookkk_id"),
-//            inverseJoinColumns = @JoinColumn(name = "shelffff_id")
-//    )
-    @JsonIgnoreProperties("books")
+    @JsonIgnoreProperties({"books", "user"})
     private Shelf shelf;
 
+
+    @ManyToOne
+    @JsonIgnoreProperties({"books", "shelves"})
+    private CustomUser user;
+
     @PreRemove
-    public void removeShelf()
+    public void removeBookFromShelf()
     {
         if(shelf!=null)
             shelf.removeBook(this);
+        if(user!=null)
+            this.user.getBooks().remove(this);
+        this.user=null;
         this.shelf=null;
     }
 

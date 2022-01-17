@@ -4,6 +4,8 @@ import com.example.libraryApp.model.Book;
 import com.example.libraryApp.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,13 @@ public class BookController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/allbooks")
+    public List<Book> getAllBooks()
+    {
+        return bookService.getAllBooks();
+    }
+
+
     @GetMapping("/books")
     public List<Book> getBooks()
     {
@@ -32,12 +41,10 @@ public class BookController {
 
     }
 
-
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("/book/{id}")
-    public Book getBook(@PathVariable long id)
+    @GetMapping("/book/{book_id}")
+    public Book getBook(@PathVariable long book_id)
     {
-        return bookService.getBook(id);
+        return bookService.getBook(book_id);
     }
 
     @PostMapping("/addbook")
@@ -67,4 +74,7 @@ public class BookController {
             return String.format("Book with id %d deleted successfully.",id);
         return String.format("There is no such book with id = %d.",id);
     }
+
+
+
 }
