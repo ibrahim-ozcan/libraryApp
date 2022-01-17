@@ -191,4 +191,15 @@ class CustomUserRepositoryTest {
 //        List<Book> books = bookRepository.findAllByUser(user).get();
 //        System.out.println(books);
     }
+
+    @Test
+    public void addAdminUser()
+    {
+        Authority adminAuthority = authorityRepository.save(new Authority(null, "ADMIN", new HashSet<>()));
+        CustomUser adminUser = new CustomUser();
+        adminUser.setUsername("adminuser");
+        adminUser.setPassword("adminuser");
+        adminUser.setAuthorities(Set.of(adminAuthority));
+        customUserRepository.save(adminUser)     ;
+    }
 }
