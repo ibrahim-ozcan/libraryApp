@@ -40,6 +40,12 @@ public class BookController {
         return bookService.getBooks();
 
     }
+    @GetMapping("/booksDeneme")
+        public List<Book> getBooksDeneme()
+        {
+            return bookService.getBooks();
+
+        }
 
     @GetMapping("/book/{book_id}")
     public Book getBook(@PathVariable long book_id)
